@@ -11,13 +11,10 @@ public class Buddy {
     /** Maximum number of tasks Buddy can remember at once. */
     private static final int MAX_TASKS = 100;
 
-    /** Fixed-size storage for task descriptions, filled from index 0 upwards. */
-    private static String[] taskDescriptions = new String[MAX_TASKS];
+    /** Fixed-size storage for tasks, filled from index 0 upwards. */
+    private static Task[] taskStorage = new Task[MAX_TASKS];
 
-    /** Parallel array to taskDescriptions: taskDone[i] is true if that task is marked done. */
-    private static boolean[] taskDone = new boolean[MAX_TASKS];
-
-    /** Number of tasks currently stored; also the next free index in the arrays above. */
+    /** Number of tasks currently stored; also the next free index in the array above. */
     private static int currentIndex = 0;
 
     /**
@@ -40,21 +37,9 @@ public class Buddy {
         if (currentIndex >= MAX_TASKS) {
             System.out.println("Storage full, unable to add.");
         } else {
-            taskDescriptions[currentIndex] = msg;
-            taskDone[currentIndex] = false;
+            taskStorage[currentIndex] = new Task(msg);
             currentIndex++;
         }
-    }
-
-    /**
-     * Returns the status icon for the task at the given index: "X" if the
-     * task is done, or a blank space if it is not done yet.
-     *
-     * @param index the array index of the task (0-based)
-     * @return "X" if the task is done, otherwise " "
-     */
-    private static String getStatusIcon(int index) {
-        return taskDone[index] ? "X" : " ";
     }
 
     /**
@@ -64,7 +49,7 @@ public class Buddy {
         System.out.println(LINE);
         System.out.println("Here are the tasks in your list:");
         for (int i = 0; i < currentIndex; i++) {
-            System.out.println((i + 1) + ".[" + getStatusIcon(i) + "] " + taskDescriptions[i]);
+            System.out.println((i + 1) + ".[" + taskStorage[i].getStatusIcon() + "] " + taskStorage[i].getDescription());
         }
         System.out.println(LINE);
     }
@@ -96,9 +81,9 @@ public class Buddy {
             return;
         }
         System.out.println(LINE);
-        taskDone[index - 1] = true;
+        taskStorage[index - 1].markAsDone();
         System.out.println("Nice! I've marked this task as done:");
-        System.out.println("  [" + getStatusIcon(index - 1) + "] " + taskDescriptions[index - 1]);
+        System.out.println("  [" + taskStorage[index - 1].getStatusIcon() + "] " + taskStorage[index - 1].getDescription());
         System.out.println(LINE);
     }
 
@@ -114,9 +99,9 @@ public class Buddy {
             return;
         }
         System.out.println(LINE);
-        taskDone[index - 1] = false;
+        taskStorage[index - 1].markAsNotDone();
         System.out.println("OK, I've marked this task as not done yet:");
-        System.out.println("  [" + getStatusIcon(index - 1) + "] " + taskDescriptions[index - 1]);
+        System.out.println("  [" + taskStorage[index - 1].getStatusIcon() + "] " + taskStorage[index - 1].getDescription());
         System.out.println(LINE);
     }
 

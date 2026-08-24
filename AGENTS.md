@@ -34,3 +34,7 @@ Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
 Follow the SE-EDU Git conventions captured in the `seedu-git-standard` skill for all commit messages and branch names.
+
+## Java coding standard
+
+All Java code in this project must follow the SE-EDU intermediate Java coding standard captured in the `seedu-java-coding-standard` skill. Apply it when writing new code and when editing existing code.

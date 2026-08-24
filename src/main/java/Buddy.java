@@ -49,7 +49,8 @@ public class Buddy {
         System.out.println(LINE);
         System.out.println("Here are the tasks in your list:");
         for (int i = 0; i < currentIndex; i++) {
-            System.out.println((i + 1) + ".[" + taskStorage[i].getStatusIcon() + "] " + taskStorage[i].getDescription());
+            Task task = taskStorage[i];
+            System.out.println((i + 1) + ".[" + task.getStatusIcon() + "] " + task.getDescription());
         }
         System.out.println(LINE);
     }
@@ -81,9 +82,10 @@ public class Buddy {
             return;
         }
         System.out.println(LINE);
-        taskStorage[index - 1].markAsDone();
+        Task task = taskStorage[index - 1];
+        task.markAsDone();
         System.out.println("Nice! I've marked this task as done:");
-        System.out.println("  [" + taskStorage[index - 1].getStatusIcon() + "] " + taskStorage[index - 1].getDescription());
+        System.out.println("  [" + task.getStatusIcon() + "] " + task.getDescription());
         System.out.println(LINE);
     }
 
@@ -99,12 +101,19 @@ public class Buddy {
             return;
         }
         System.out.println(LINE);
-        taskStorage[index - 1].markAsNotDone();
+        Task task = taskStorage[index - 1];
+        task.markAsNotDone();
         System.out.println("OK, I've marked this task as not done yet:");
-        System.out.println("  [" + taskStorage[index - 1].getStatusIcon() + "] " + taskStorage[index - 1].getDescription());
+        System.out.println("  [" + task.getStatusIcon() + "] " + task.getDescription());
         System.out.println(LINE);
     }
 
+    /**
+     * Runs Buddy: prints the greeting banner, then reads commands from
+     * standard input until the user types "bye".
+     *
+     * @param args not used
+     */
     public static void main(String[] args) {
         String banner = " ____   _   _  ____   ____  __   __\n"
                 + "| __ ) | | | ||  _ \\ |  _ \\ \\ \\ / /\n"
@@ -125,7 +134,7 @@ public class Buddy {
                 break;
             } else if (array[0].equals("list")) {
                 listTasks();
-            } else if (array[0].equals("mark")){
+            } else if (array[0].equals("mark")) {
                 markTask(Integer.parseInt(array[1]));
             } else if (array[0].equals("unmark")) {
                 unmarkTask(Integer.parseInt(array[1]));

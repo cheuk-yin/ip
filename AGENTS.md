@@ -38,3 +38,10 @@ Follow the SE-EDU Git conventions captured in the `seedu-git-standard` skill for
 ## Java coding standard
 
 All Java code in this project must follow the SE-EDU intermediate Java coding standard captured in the `seedu-java-coding-standard` skill. Apply it when writing new code and when editing existing code.
+
+## Testing
+
+After every code change, before reporting the change as done:
+
+1. Update `test/ui-test-plan.md` if the change affects Buddy's commands or console output (add, remove, or adjust test cases as needed) — see the `test-ui` skill for the file's format.
+2. Invoke the `test-ui` skill to run the UI test plan and confirm the change did not break anything.

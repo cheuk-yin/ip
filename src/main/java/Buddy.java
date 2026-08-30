@@ -22,7 +22,7 @@ public class Buddy {
      *
      * @param message the message to display
      */
-    public static void printMessage(String message) {
+    private static void printMessage(String message) {
         System.out.println(LINE);
         System.out.println(" " + message);
         System.out.println(LINE);
@@ -34,7 +34,7 @@ public class Buddy {
      *
      * @param task the task that was just added
      */
-    public static void printBoxed(Task task) {
+    private static void printBoxed(Task task) {
         System.out.println(LINE);
         System.out.println(" Got it. I've added this task:");
         System.out.println("   " + task);
@@ -47,7 +47,7 @@ public class Buddy {
      *
      * @param task the task to store
      */
-    public static void storeTask(Task task) {
+    private static void storeTask(Task task) {
         if (currentIndex >= MAX_TASKS) {
             printMessage("Storage full, unable to add.");
         } else {
@@ -59,7 +59,7 @@ public class Buddy {
     /**
      * Prints all stored tasks, numbered from 1, between divider lines.
      */
-    public static void listTasks() {
+    private static void listTasks() {
         System.out.println(LINE);
         System.out.println(" Here are the tasks in your list:");
         for (int i = 0; i < currentIndex; i++) {
@@ -85,50 +85,110 @@ public class Buddy {
     }
 
     /**
-     * Marks the task at the given 1-based index as done and prints a
-     * confirmation showing the updated task. Prints an error instead if
-     * the index does not refer to an existing task.
+     * Marks the task at the given 1-based index as done or not done, and
+     * prints a confirmation showing the updated task. Prints an error
+     * instead if the index does not refer to an existing task.
      *
      * @param index the 1-based position of the task in the list
+     * @param isDone true to mark the task done, false to mark it not done
      */
-    public static void markTask(int index) {
+    private static void setTaskStatus(int index, boolean isDone) {
         if (!isValidIndex(index)) {
             return;
         }
-        System.out.println(LINE);
         Task task = taskStorage[index - 1];
-        task.markAsDone();
-        System.out.println(" Nice! I've marked this task as done:");
+        if (isDone) {
+            task.markAsDone();
+        } else {
+            task.markAsNotDone();
+        }
+        System.out.println(LINE);
+        String confirmation = isDone
+                ? " Nice! I've marked this task as done:"
+                : " OK, I've marked this task as not done yet:";
+        System.out.println(confirmation);
         System.out.println("   " + task);
         System.out.println(LINE);
     }
 
     /**
-     * Marks the task at the given 1-based index as not done and prints a
-     * confirmation showing the updated task. Prints an error instead if
-     * the index does not refer to an existing task.
+     * Marks the task at the given 1-based index as done.
      *
      * @param index the 1-based position of the task in the list
      */
-    public static void unmarkTask(int index) {
-        if (!isValidIndex(index)) {
-            return;
-        }
-        System.out.println(LINE);
-        Task task = taskStorage[index - 1];
-        task.markAsNotDone();
-        System.out.println(" OK, I've marked this task as not done yet:");
-        System.out.println("   " + task);
-        System.out.println(LINE);
+    private static void markTask(int index) {
+        setTaskStatus(index, true);
     }
 
     /**
-     * Runs Buddy: prints the greeting banner, then reads commands from
-     * standard input until the user types "bye".
+     * Marks the task at the given 1-based index as not done.
      *
-     * @param args not used
+     * @param index the 1-based position of the task in the list
      */
-    public static void main(String[] args) {
+    private static void unmarkTask(int index) {
+        setTaskStatus(index, false);
+    }
+
+    /**
+     * Removes the leading command word (e.g. "todo") from a line of user
+     * input, returning only the text after the first space.
+     *
+     * @param line the full line of user input, including the command word
+     * @return the remainder of the line after the first space
+     */
+    private static String stripCommandWord(String line) {
+        return line.substring(line.indexOf(' ') + 1);
+    }
+
+    /**
+     * Creates a todo from a "todo &lt;description&gt;" command line.
+     *
+     * @param line the full command line
+     * @return the new todo
+     */
+    private static Todo createTodo(String line) {
+        return new Todo(stripCommandWord(line));
+    }
+
+    /**
+     * Creates a deadline from a "deadline &lt;description&gt; /by &lt;when&gt;"
+     * command line.
+     *
+     * @param line the full command line
+     * @return the new deadline
+     */
+    private static Deadline createDeadline(String line) {
+        String[] descriptionAndBy = stripCommandWord(line).split(" /by ");
+        return new Deadline(descriptionAndBy[0], descriptionAndBy[1]);
+    }
+
+    /**
+     * Creates an event from an
+     * "event &lt;description&gt; /from &lt;start&gt; /to &lt;end&gt;" command line.
+     *
+     * @param line the full command line
+     * @return the new event
+     */
+    private static Event createEvent(String line) {
+        String[] descriptionAndFrom = stripCommandWord(line).split(" /from ");
+        String[] fromAndTo = descriptionAndFrom[1].split(" /to ");
+        return new Event(descriptionAndFrom[0], fromAndTo[0], fromAndTo[1]);
+    }
+
+    /**
+     * Stores the given task and prints a confirmation that it was added.
+     *
+     * @param task the task to store and confirm
+     */
+    private static void addAndPrintTask(Task task) {
+        storeTask(task);
+        printBoxed(task);
+    }
+
+    /**
+     * Prints Buddy's startup banner and greeting.
+     */
+    private static void printGreeting() {
         String banner = " ____   _   _  ____   ____  __   __\n"
                 + "| __ ) | | | ||  _ \\ |  _ \\ \\ \\ / /\n"
                 + "|  _ \\ | | | || | | || | | | \\ V / \n"
@@ -139,48 +199,46 @@ public class Buddy {
         System.out.println(" Hello! I'm Buddy.");
         System.out.println(" What can I do for you?");
         System.out.println(LINE);
+    }
+
+    /**
+     * Executes a single line of user input as a command.
+     *
+     * @param line the full line of user input
+     * @return true if Buddy should keep running, false if the "bye"
+     *     command was given
+     */
+    private static boolean handleCommand(String line) {
+        String[] commandParts = line.split(" ");
+        switch (commandParts[0]) {
+            case "bye" -> {
+                printMessage("Bye. Hope to see you again soon!");
+                return false;
+            }
+            case "list" -> listTasks();
+            case "mark" -> markTask(Integer.parseInt(commandParts[1]));
+            case "unmark" -> unmarkTask(Integer.parseInt(commandParts[1]));
+            case "todo" -> addAndPrintTask(createTodo(line));
+            case "deadline" -> addAndPrintTask(createDeadline(line));
+            case "event" -> addAndPrintTask(createEvent(line));
+            default -> addAndPrintTask(new Task(line));
+        }
+        return true;
+    }
+
+    /**
+     * Runs Buddy: prints the greeting banner, then reads commands from
+     * standard input until the user types "bye".
+     *
+     * @param args not used
+     */
+    public static void main(String[] args) {
+        printGreeting();
         Scanner scanner = new Scanner(System.in);
         boolean isRunning = true;
         while (isRunning && scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            String[] array = line.split(" ");
-            switch (array[0]) {
-                case "bye" -> {
-                    printMessage("Bye. Hope to see you again soon!");
-                    isRunning = false;
-                }
-                case "list" -> listTasks();
-                case "mark" -> markTask(Integer.parseInt(array[1]));
-                case "unmark" -> unmarkTask(Integer.parseInt(array[1]));
-                case "todo" -> {
-                    String desc = line.substring(line.indexOf(' ') + 1);
-                    Todo todo = new Todo(desc);
-                    storeTask(todo);
-                    printBoxed(todo);
-                }
-                case "deadline" -> {
-                    String rest = line.substring(line.indexOf(' ') + 1);
-                    String[] descAndBy = rest.split(" /by ");
-                    Deadline deadline = new Deadline(descAndBy[0], descAndBy[1]);
-                    storeTask(deadline);
-                    printBoxed(deadline);
-                }
-                case "event" -> {
-                    String rest = line.substring(line.indexOf(' ') + 1);
-                    String[] descAndRest = rest.split(" /from ");
-                    String[] fromAndTo = descAndRest[1].split(" /to ");
-                    Event event = new Event(descAndRest[0], fromAndTo[0], fromAndTo[1]);
-                    storeTask(event);
-                    printBoxed(event);
-                }
-                default -> {
-                    Task task = new Task(line);
-                    storeTask(task);
-                    printBoxed(task);
-                }
-            }
+            isRunning = handleCommand(scanner.nextLine());
         }
         scanner.close();
     }
 }
-

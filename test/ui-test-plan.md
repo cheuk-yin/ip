@@ -121,6 +121,231 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+## Reject an empty todo description
+
+**Aim:** A `todo` command with no description throws a BuddyException and prints an error instead of adding a task.
+
+**Input:**
+```text
+todo
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you cant leave the description of a todo empty.
+____________________________________________________________
+```
+
+## Reject an empty deadline description
+
+**Aim:** A `deadline` command with no description throws a BuddyException and prints an error instead of adding a task.
+
+**Input:**
+```text
+deadline
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you cant leave the description of a deadline empty.
+____________________________________________________________
+```
+
+## Reject a deadline missing '/by'
+
+**Aim:** A `deadline` command with a description but no `/by` throws a BuddyException and prints an error instead of adding a task.
+
+**Input:**
+```text
+deadline return book
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you need to specify the deadline using '/by'.
+____________________________________________________________
+```
+
+## Reject an empty event description
+
+**Aim:** An `event` command with no description throws a BuddyException and prints an error instead of adding a task.
+
+**Input:**
+```text
+event
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you cant leave the description of an event empty.
+____________________________________________________________
+```
+
+## Reject an event missing '/from'
+
+**Aim:** An `event` command with a description but no `/from` throws a BuddyException and prints an error instead of adding a task.
+
+**Input:**
+```text
+event project meeting
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you need to specify the start of an event using '/from'.
+____________________________________________________________
+```
+
+## Reject an event missing '/to'
+
+**Aim:** An `event` command with a description and `/from` but no `/to` throws a BuddyException and prints an error instead of adding a task.
+
+**Input:**
+```text
+event project meeting /from Mon 2pm
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you need to specify the end of an event using '/to'.
+____________________________________________________________
+```
+
+## Reject mark with no task number
+
+**Aim:** A `mark` command with no task number throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+mark
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you need to provide a task number to mark.
+____________________________________________________________
+```
+
+## Reject mark with a non-numeric task number
+
+**Aim:** A `mark` command whose task number isn't an integer throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+mark abc
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you need to provide an int for the task number, not abc.
+____________________________________________________________
+```
+
+## Reject mark with an out-of-range task number
+
+**Aim:** A `mark` command whose task number is beyond the current task list throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+mark 99
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy task number 99 does not exist.
+____________________________________________________________
+```
+
+## Unmark a task
+
+**Aim:** Unmarking task 1 clears its status icon and confirms the change.
+
+**Input:**
+```text
+unmark 1
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ OK, I've marked this task as not done yet:
+   [T][ ] read book
+____________________________________________________________
+```
+
+## Reject unmark with no task number
+
+**Aim:** An `unmark` command with no task number throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+unmark
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you need to provide a task number to unmark.
+____________________________________________________________
+```
+
+## Reject unmark with a non-numeric task number
+
+**Aim:** An `unmark` command whose task number isn't an integer throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+unmark abc
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you need to provide an int for the task number, not abc.
+____________________________________________________________
+```
+
+## Reject unmark with an out-of-range task number
+
+**Aim:** An `unmark` command whose task number is beyond the current task list throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+unmark 99
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy task number 99 does not exist.
+____________________________________________________________
+```
+
+## Reject an unknown command
+
+**Aim:** A command word Buddy doesn't recognize throws a BuddyException and prints an error instead of being silently added as a task.
+
+**Input:**
+```text
+blah
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy there is no such command.
+____________________________________________________________
+```
+
 ## Exit with bye
 
 **Aim:** The `bye` command prints a goodbye message and ends the session.

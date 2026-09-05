@@ -1,3 +1,5 @@
+package buddy.task;
+
 /**
  * Represents a simple task with no date or time attached, other than its
  * description.

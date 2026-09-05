@@ -1,3 +1,5 @@
+package buddy.task;
+
 /**
  * Represents a task that occurs during a specific time span.
  */

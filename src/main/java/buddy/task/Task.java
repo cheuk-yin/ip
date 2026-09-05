@@ -1,3 +1,5 @@
+package buddy.task;
+
 /**
  * Represents a single task that Buddy can keep track of.
  *

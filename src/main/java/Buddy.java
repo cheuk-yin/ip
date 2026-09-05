@@ -70,21 +70,6 @@ public class Buddy {
     }
 
     /**
-     * Checks whether the given 1-based index refers to an existing task,
-     * printing an error message if it does not.
-     *
-     * @param index the 1-based position to check
-     * @return true if the index is within range of the stored tasks
-     */
-    private static boolean isValidIndex(int index) {
-        if (index < 1 || index > currentIndex) {
-            printMessage("OOPS!!! Task " + index + " does not exist.");
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Marks the task at the given 1-based index as done or not done, and
      * prints a confirmation showing the updated task. Prints an error
      * instead if the index does not refer to an existing task.
@@ -93,9 +78,6 @@ public class Buddy {
      * @param isDone true to mark the task done, false to mark it not done
      */
     private static void setTaskStatus(int index, boolean isDone) {
-        if (!isValidIndex(index)) {
-            return;
-        }
         Task task = taskStorage[index - 1];
         if (isDone) {
             task.markAsDone();
@@ -114,19 +96,45 @@ public class Buddy {
     /**
      * Marks the task at the given 1-based index as done.
      *
-     * @param index the 1-based position of the task in the list
+     * @param line the command given by the user
      */
-    private static void markTask(int index) {
-        setTaskStatus(index, true);
+    private static void markTask(String line) throws BuddyException {
+        String[] commandParts = line.split(" ");
+        try {
+            if (commandParts.length < 2) {
+                throw new BuddyException("Buddy you need to provide a task number to mark.");
+            }
+            int index = Integer.parseInt(commandParts[1]);
+            if (index > currentIndex) {
+                throw new BuddyException("Buddy task number " + index + " does not exist.");
+            }
+            setTaskStatus(index, true);
+        } catch (NumberFormatException e) {
+            throw new BuddyException("Buddy you need to provide an int for the task number, " +
+                    "not " + commandParts[1] + ".");
+        }
     }
 
     /**
      * Marks the task at the given 1-based index as not done.
      *
-     * @param index the 1-based position of the task in the list
+     * @param line the command given by the user
      */
-    private static void unmarkTask(int index) {
-        setTaskStatus(index, false);
+    private static void unmarkTask(String line) throws BuddyException {
+        String[] commandParts = line.split(" ");
+        try {
+            if (commandParts.length < 2) {
+                throw new BuddyException("Buddy you need to provide a task number to unmark.");
+            }
+            int index = Integer.parseInt(commandParts[1]);
+            if (index > currentIndex) {
+                throw new BuddyException("Buddy task number " + index + " does not exist.");
+            }
+            setTaskStatus(index, false);
+        } catch (NumberFormatException e) {
+            throw new BuddyException("Buddy you need to provide an int for the task number, " +
+                    "not " + commandParts[1] + ".");
+        }
     }
 
     /**
@@ -137,6 +145,9 @@ public class Buddy {
      * @return the remainder of the line after the first space
      */
     private static String stripCommandWord(String line) {
+        if (line.indexOf(' ') == -1) {
+            return "";
+        }
         return line.substring(line.indexOf(' ') + 1);
     }
 
@@ -146,8 +157,12 @@ public class Buddy {
      * @param line the full command line
      * @return the new todo
      */
-    private static Todo createTodo(String line) {
-        return new Todo(stripCommandWord(line));
+    private static Todo createTodo(String line) throws BuddyException{
+        String description = stripCommandWord((line));
+        if (description.isBlank()) {
+            throw new BuddyException("Buddy you cant leave the description of a todo empty.");
+        }
+        return new Todo(description);
     }
 
     /**
@@ -157,8 +172,16 @@ public class Buddy {
      * @param line the full command line
      * @return the new deadline
      */
-    private static Deadline createDeadline(String line) {
-        String[] descriptionAndBy = stripCommandWord(line).split(" /by ");
+    private static Deadline createDeadline(String line) throws BuddyException {
+        String description = stripCommandWord((line));
+        if (description.isBlank()) {
+            throw new BuddyException("Buddy you cant leave the description of a deadline empty.");
+        }
+        String[] descriptionAndBy = description.split(" /by ");
+
+        if (descriptionAndBy.length < 2) {
+            throw new BuddyException("Buddy you need to specify the deadline using '/by'.");
+        }
         return new Deadline(descriptionAndBy[0], descriptionAndBy[1]);
     }
 
@@ -169,9 +192,19 @@ public class Buddy {
      * @param line the full command line
      * @return the new event
      */
-    private static Event createEvent(String line) {
-        String[] descriptionAndFrom = stripCommandWord(line).split(" /from ");
+    private static Event createEvent(String line) throws BuddyException {
+        String description = stripCommandWord((line));
+        if (description.isBlank()) {
+            throw new BuddyException("Buddy you cant leave the description of an event empty.");
+        }
+        String[] descriptionAndFrom = description.split(" /from ");
+        if (descriptionAndFrom.length < 2) {
+            throw new BuddyException("Buddy you need to specify the start of an event using '/from'.");
+        }
         String[] fromAndTo = descriptionAndFrom[1].split(" /to ");
+        if (fromAndTo.length < 2) {
+            throw new BuddyException("Buddy you need to specify the end of an event using '/to'.");
+        }
         return new Event(descriptionAndFrom[0], fromAndTo[0], fromAndTo[1]);
     }
 
@@ -210,18 +243,23 @@ public class Buddy {
      */
     private static boolean handleCommand(String line) {
         String[] commandParts = line.split(" ");
-        switch (commandParts[0]) {
-            case "bye" -> {
-                printMessage("Bye. Hope to see you again soon!");
-                return false;
+        try {
+            switch (commandParts[0]) {
+                case "bye" -> {
+                    printMessage("Bye. Hope to see you again soon!");
+                    return false;
+                }
+                case "list" -> listTasks();
+                case "mark" -> markTask(line);
+                case "unmark" -> unmarkTask(line);
+                case "todo" -> addAndPrintTask(createTodo(line));
+                case "deadline" -> addAndPrintTask(createDeadline(line));
+                case "event" -> addAndPrintTask(createEvent(line));
+                default -> throw new BuddyException("Buddy there is no such command.");
             }
-            case "list" -> listTasks();
-            case "mark" -> markTask(Integer.parseInt(commandParts[1]));
-            case "unmark" -> unmarkTask(Integer.parseInt(commandParts[1]));
-            case "todo" -> addAndPrintTask(createTodo(line));
-            case "deadline" -> addAndPrintTask(createDeadline(line));
-            case "event" -> addAndPrintTask(createEvent(line));
-            default -> addAndPrintTask(new Task(line));
+
+        } catch (BuddyException e) {
+            printMessage(e.getMessage());
         }
         return true;
     }

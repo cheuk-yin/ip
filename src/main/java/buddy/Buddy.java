@@ -1,4 +1,12 @@
+package buddy;
+
 import java.util.Scanner;
+
+import buddy.exception.BuddyException;
+import buddy.task.Deadline;
+import buddy.task.Event;
+import buddy.task.Task;
+import buddy.task.Todo;
 
 /**
  * Buddy is a simple command-line chatbot that can store short pieces of
@@ -157,7 +165,7 @@ public class Buddy {
      * @param line the full command line
      * @return the new todo
      */
-    private static Todo createTodo(String line) throws BuddyException{
+    private static Todo createTodo(String line) throws BuddyException {
         String description = stripCommandWord((line));
         if (description.isBlank()) {
             throw new BuddyException("Buddy you cant leave the description of a todo empty.");

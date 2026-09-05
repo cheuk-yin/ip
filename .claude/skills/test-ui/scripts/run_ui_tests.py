@@ -12,7 +12,7 @@ from pathlib import Path
 
 # scripts -> test-ui -> skills -> .claude -> repo root
 REPO_ROOT_DEPTH = 4
-MAIN_CLASS = "Buddy"
+MAIN_CLASS = "buddy.Buddy"
 SRC_DIR = "src/main/java"
 TEST_PLAN_PATH = "test/ui-test-plan.md"
 
@@ -75,7 +75,7 @@ def parse_test_plan(path):
 
 def compile_java(repo_root):
     src_dir = repo_root / SRC_DIR
-    java_files = sorted(str(p) for p in src_dir.glob("*.java"))
+    java_files = sorted(str(p) for p in src_dir.rglob("*.java"))
     if not java_files:
         fail(f"No .java files found in {src_dir}")
 
@@ -141,7 +141,7 @@ def report_failure(test_case, actual_slice, proc):
 
 def main():
     repo_root = find_repo_root()
-    buddy_source = repo_root / SRC_DIR / f"{MAIN_CLASS}.java"
+    buddy_source = repo_root / SRC_DIR / (MAIN_CLASS.replace(".", "/") + ".java")
     test_plan_path = repo_root / TEST_PLAN_PATH
     if not buddy_source.exists():
         fail(f"Expected {buddy_source} to exist - is this the Buddy repo root?")

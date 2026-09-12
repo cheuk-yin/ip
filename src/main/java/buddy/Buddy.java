@@ -1,5 +1,6 @@
 package buddy;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import buddy.exception.BuddyException;
@@ -16,14 +17,8 @@ import buddy.task.Todo;
 public class Buddy {
     private static final String LINE = "____________________________________________________________";
 
-    /** Maximum number of tasks Buddy can remember at once. */
-    private static final int MAX_TASKS = 100;
-
-    /** Fixed-size storage for tasks, filled from index 0 upwards. */
-    private static Task[] taskStorage = new Task[MAX_TASKS];
-
-    /** Number of tasks currently stored; also the next free index in the array above. */
-    private static int currentIndex = 0;
+    /** Storage for tasks, in the order they were added. */
+    private static ArrayList<Task> taskStorage = new ArrayList<>();
 
     /**
      * Prints a message surrounded by horizontal divider lines.
@@ -46,22 +41,8 @@ public class Buddy {
         System.out.println(LINE);
         System.out.println(" Got it. I've added this task:");
         System.out.println("   " + task);
-        System.out.println(" Now you have " + currentIndex + " tasks in the list.");
+        System.out.println(" Now you have " + taskStorage.size() + " tasks in the list.");
         System.out.println(LINE);
-    }
-
-    /**
-     * Stores the given task, unless storage is already full.
-     *
-     * @param task the task to store
-     */
-    private static void storeTask(Task task) {
-        if (currentIndex >= MAX_TASKS) {
-            printMessage("Storage full, unable to add.");
-        } else {
-            taskStorage[currentIndex] = task;
-            currentIndex++;
-        }
     }
 
     /**
@@ -70,8 +51,8 @@ public class Buddy {
     private static void listTasks() {
         System.out.println(LINE);
         System.out.println(" Here are the tasks in your list:");
-        for (int i = 0; i < currentIndex; i++) {
-            Task task = taskStorage[i];
+        for (int i = 0; i < taskStorage.size(); i++) {
+            Task task = taskStorage.get(i);
             System.out.println(" " + (i + 1) + "." + task);
         }
         System.out.println(LINE);
@@ -86,7 +67,7 @@ public class Buddy {
      * @param isDone true to mark the task done, false to mark it not done
      */
     private static void setTaskStatus(int index, boolean isDone) {
-        Task task = taskStorage[index - 1];
+        Task task = taskStorage.get(index - 1);
         if (isDone) {
             task.markAsDone();
         } else {
@@ -113,7 +94,7 @@ public class Buddy {
                 throw new BuddyException("Buddy you need to provide a task number to mark.");
             }
             int index = Integer.parseInt(commandParts[1]);
-            if (index > currentIndex) {
+            if (index < 1 || index > taskStorage.size()) {
                 throw new BuddyException("Buddy task number " + index + " does not exist.");
             }
             setTaskStatus(index, true);
@@ -135,7 +116,7 @@ public class Buddy {
                 throw new BuddyException("Buddy you need to provide a task number to unmark.");
             }
             int index = Integer.parseInt(commandParts[1]);
-            if (index > currentIndex) {
+            if (index < 1 || index > taskStorage.size()) {
                 throw new BuddyException("Buddy task number " + index + " does not exist.");
             }
             setTaskStatus(index, false);
@@ -222,7 +203,7 @@ public class Buddy {
      * @param task the task to store and confirm
      */
     private static void addAndPrintTask(Task task) {
-        storeTask(task);
+        taskStorage.add(task);
         printBoxed(task);
     }
 

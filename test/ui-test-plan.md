@@ -265,6 +265,22 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+## Reject mark with a task number below 1
+
+**Aim:** A `mark` command with a task number of 0 or lower throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+mark 0
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy task number 0 does not exist.
+____________________________________________________________
+```
+
 ## Unmark a task
 
 **Aim:** Unmarking task 1 clears its status icon and confirms the change.
@@ -327,6 +343,22 @@ unmark 99
 ```text
 ____________________________________________________________
  Buddy task number 99 does not exist.
+____________________________________________________________
+```
+
+## Reject unmark with a task number below 1
+
+**Aim:** An `unmark` command with a task number of 0 or lower throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+unmark 0
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy task number 0 does not exist.
 ____________________________________________________________
 ```
 

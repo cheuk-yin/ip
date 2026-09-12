@@ -83,25 +83,40 @@ public class Buddy {
     }
 
     /**
+     * Parses and validates the task number given as the second word of a
+     * mark/unmark/delete command line.
+     *
+     * @param commandParts the command line split by spaces
+     * @param action the action being attempted (e.g. "mark"), used to
+     *     phrase the error message if no task number was given
+     * @return the validated 1-based task number
+     * @throws BuddyException if no task number was given, it isn't an
+     *     integer, or it doesn't refer to an existing task
+     */
+    private static int parseTaskIndex(String[] commandParts, String action) throws BuddyException {
+        if (commandParts.length < 2) {
+            throw new BuddyException("Buddy you need to provide a task number to " + action + ".");
+        }
+        try {
+            int index = Integer.parseInt(commandParts[1]);
+            if (index < 1 || index > taskStorage.size()) {
+                throw new BuddyException("Buddy task number " + index + " does not exist.");
+            }
+            return index;
+        } catch (NumberFormatException e) {
+            throw new BuddyException("Buddy you need to provide an int for the task number, " +
+                    "not " + commandParts[1] + ".");
+        }
+    }
+
+    /**
      * Marks the task at the given 1-based index as done.
      *
      * @param line the command given by the user
      */
     private static void markTask(String line) throws BuddyException {
-        String[] commandParts = line.split(" ");
-        try {
-            if (commandParts.length < 2) {
-                throw new BuddyException("Buddy you need to provide a task number to mark.");
-            }
-            int index = Integer.parseInt(commandParts[1]);
-            if (index < 1 || index > taskStorage.size()) {
-                throw new BuddyException("Buddy task number " + index + " does not exist.");
-            }
-            setTaskStatus(index, true);
-        } catch (NumberFormatException e) {
-            throw new BuddyException("Buddy you need to provide an int for the task number, " +
-                    "not " + commandParts[1] + ".");
-        }
+        int index = parseTaskIndex(line.split(" "), "mark");
+        setTaskStatus(index, true);
     }
 
     /**
@@ -110,20 +125,24 @@ public class Buddy {
      * @param line the command given by the user
      */
     private static void unmarkTask(String line) throws BuddyException {
-        String[] commandParts = line.split(" ");
-        try {
-            if (commandParts.length < 2) {
-                throw new BuddyException("Buddy you need to provide a task number to unmark.");
-            }
-            int index = Integer.parseInt(commandParts[1]);
-            if (index < 1 || index > taskStorage.size()) {
-                throw new BuddyException("Buddy task number " + index + " does not exist.");
-            }
-            setTaskStatus(index, false);
-        } catch (NumberFormatException e) {
-            throw new BuddyException("Buddy you need to provide an int for the task number, " +
-                    "not " + commandParts[1] + ".");
-        }
+        int index = parseTaskIndex(line.split(" "), "unmark");
+        setTaskStatus(index, false);
+    }
+
+    /**
+     * Removes the task at the given 1-based index and prints a
+     * confirmation showing the removed task and the new task count.
+     *
+     * @param line the command given by the user
+     */
+    private static void deleteTask(String line) throws BuddyException {
+        int index = parseTaskIndex(line.split(" "), "delete");
+        Task removedTask = taskStorage.remove(index - 1);
+        System.out.println(LINE);
+        System.out.println(" Noted. I've removed this task:");
+        System.out.println("   " + removedTask);
+        System.out.println(" Now you have " + taskStorage.size() + " tasks in the list.");
+        System.out.println(LINE);
     }
 
     /**
@@ -244,6 +263,7 @@ public class Buddy {
                 case "todo" -> addAndPrintTask(createTodo(line));
                 case "deadline" -> addAndPrintTask(createDeadline(line));
                 case "event" -> addAndPrintTask(createEvent(line));
+                case "delete" -> deleteTask(line);
                 default -> throw new BuddyException("Buddy there is no such command.");
             }
 

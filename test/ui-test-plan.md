@@ -265,6 +265,22 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+## Reject mark with a task number below 1
+
+**Aim:** A `mark` command with a task number of 0 or lower throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+mark 0
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy task number 0 does not exist.
+____________________________________________________________
+```
+
 ## Unmark a task
 
 **Aim:** Unmarking task 1 clears its status icon and confirms the change.
@@ -327,6 +343,104 @@ unmark 99
 ```text
 ____________________________________________________________
  Buddy task number 99 does not exist.
+____________________________________________________________
+```
+
+## Reject unmark with a task number below 1
+
+**Aim:** An `unmark` command with a task number of 0 or lower throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+unmark 0
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy task number 0 does not exist.
+____________________________________________________________
+```
+
+## Delete a task
+
+**Aim:** Deleting task 2 removes it from the list, shows the removed task, and reports the new task count.
+
+**Input:**
+```text
+delete 2
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Noted. I've removed this task:
+   [D][ ] return book (by: Sunday)
+ Now you have 2 tasks in the list.
+____________________________________________________________
+```
+
+## Reject delete with no task number
+
+**Aim:** A `delete` command with no task number throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+delete
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you need to provide a task number to delete.
+____________________________________________________________
+```
+
+## Reject delete with a non-numeric task number
+
+**Aim:** A `delete` command whose task number isn't an integer throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+delete abc
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you need to provide an int for the task number, not abc.
+____________________________________________________________
+```
+
+## Reject delete with an out-of-range task number
+
+**Aim:** A `delete` command whose task number is beyond the current task list throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+delete 99
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy task number 99 does not exist.
+____________________________________________________________
+```
+
+## Reject delete with a task number below 1
+
+**Aim:** A `delete` command with a task number of 0 or lower throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+delete 0
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy task number 0 does not exist.
 ____________________________________________________________
 ```
 

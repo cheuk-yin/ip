@@ -19,5 +19,8 @@ bin/
 # Temp files
 _temp/
 
+# Buddy's saved task data
+/data/
+
 /text-ui-test/ACTUAL.TXT
 text-ui-test/EXPECTED-UNIX.TXT

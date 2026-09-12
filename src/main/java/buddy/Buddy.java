@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import buddy.exception.BuddyException;
+import buddy.storage.Storage;
 import buddy.task.Deadline;
 import buddy.task.Event;
 import buddy.task.Task;
@@ -73,6 +74,7 @@ public class Buddy {
         } else {
             task.markAsNotDone();
         }
+        Storage.save(taskStorage);
         System.out.println(LINE);
         String confirmation = isDone
                 ? " Nice! I've marked this task as done:"
@@ -138,6 +140,7 @@ public class Buddy {
     private static void deleteTask(String line) throws BuddyException {
         int index = parseTaskIndex(line.split(" "), "delete");
         Task removedTask = taskStorage.remove(index - 1);
+        Storage.save(taskStorage);
         System.out.println(LINE);
         System.out.println(" Noted. I've removed this task:");
         System.out.println("   " + removedTask);
@@ -223,6 +226,7 @@ public class Buddy {
      */
     private static void addAndPrintTask(Task task) {
         taskStorage.add(task);
+        Storage.save(taskStorage);
         printBoxed(task);
     }
 
@@ -274,12 +278,14 @@ public class Buddy {
     }
 
     /**
-     * Runs Buddy: prints the greeting banner, then reads commands from
-     * standard input until the user types "bye".
+     * Runs Buddy: loads previously saved tasks, prints the greeting
+     * banner, then reads commands from standard input until the user
+     * types "bye".
      *
      * @param args not used
      */
     public static void main(String[] args) {
+        taskStorage.addAll(Storage.load());
         printGreeting();
         Scanner scanner = new Scanner(System.in);
         boolean isRunning = true;

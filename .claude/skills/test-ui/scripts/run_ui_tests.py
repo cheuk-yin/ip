@@ -4,6 +4,7 @@ continuous console session, and check the real output against each test
 case's expected output. Stops at the first mismatch.
 """
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -15,6 +16,7 @@ REPO_ROOT_DEPTH = 4
 MAIN_CLASS = "buddy.Buddy"
 SRC_DIR = "src/main/java"
 TEST_PLAN_PATH = "test/ui-test-plan.md"
+DATA_DIR = "data"
 
 CASE_PATTERN = re.compile(r"^## (.+)$", re.MULTILINE)
 AIM_PATTERN = re.compile(r"\*\*Aim:\*\*\s*(.+)")
@@ -98,6 +100,11 @@ def compile_java(repo_root):
 
 
 def run_buddy(classes_dir, repo_root, stdin_text):
+    # Each call replays the *entire* cumulative session from scratch in a
+    # fresh process, so Buddy's saved-data file must be cleared first -
+    # otherwise tasks it loads from a previous call's save file would be
+    # double-counted on top of the replayed input.
+    shutil.rmtree(repo_root / DATA_DIR, ignore_errors=True)
     try:
         return subprocess.run(
             ["java", "-classpath", str(classes_dir), MAIN_CLASS],

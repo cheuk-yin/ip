@@ -121,6 +121,56 @@ ____________________________________________________________
 ____________________________________________________________
 ```
 
+## Find tasks matching a keyword
+
+**Aim:** Finding tasks with a keyword shows only tasks whose description contains it, renumbered from 1.
+
+**Input:**
+```text
+find book
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Here are the matching tasks in your list:
+ 1.[T][X] read book
+ 2.[D][ ] return book (by: Dec 02 2019, 6:00 PM)
+____________________________________________________________
+```
+
+## Find with a keyword that matches nothing
+
+**Aim:** Finding with a keyword no task's description contains prints a "not found" message instead of an empty list.
+
+**Input:**
+```text
+find xyzzy
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy couldnt find any tasks with that keyword.
+____________________________________________________________
+```
+
+## Reject find with no keyword
+
+**Aim:** A `find` command with no keyword throws a BuddyException and prints an error instead of crashing.
+
+**Input:**
+```text
+find
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy you need to provide a keyword to search for.
+____________________________________________________________
+```
+
 ## Reject an empty todo description
 
 **Aim:** A `todo` command with no description throws a BuddyException and prints an error instead of adding a task.

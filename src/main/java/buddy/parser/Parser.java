@@ -8,6 +8,7 @@ import buddy.command.AddCommand;
 import buddy.command.Command;
 import buddy.command.DeleteCommand;
 import buddy.command.ExitCommand;
+import buddy.command.FindCommand;
 import buddy.command.ListCommand;
 import buddy.command.MarkCommand;
 import buddy.exception.BuddyException;
@@ -42,6 +43,7 @@ public class Parser {
             case "deadline" -> new AddCommand(parseDeadline(fullCommand));
             case "event" -> new AddCommand(parseEvent(fullCommand));
             case "delete" -> new DeleteCommand(parseTaskIndex(commandParts, "delete"));
+            case "find" -> new FindCommand(parseKeyword(fullCommand));
             default -> throw new BuddyException("Buddy there is no such command.");
         };
     }
@@ -121,6 +123,21 @@ public class Parser {
             throw new BuddyException("Buddy you need to specify the end of an event using '/to'.");
         }
         return new Event(descriptionAndFrom[0], fromAndTo[0], fromAndTo[1]);
+    }
+
+    /**
+     * Parses the search keyword from a "find &lt;keyword&gt;" command line.
+     *
+     * @param line the full command line
+     * @return the keyword to search for
+     * @throws BuddyException if no keyword was given
+     */
+    private static String parseKeyword(String line) throws BuddyException {
+        String keyword = stripCommandWord(line);
+        if (keyword.isBlank()) {
+            throw new BuddyException("Buddy you need to provide a keyword to search for.");
+        }
+        return keyword;
     }
 
     /**

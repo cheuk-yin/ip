@@ -1,5 +1,9 @@
 package buddy.parser;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 import buddy.command.AddCommand;
 import buddy.command.Command;
 import buddy.command.DeleteCommand;
@@ -18,6 +22,7 @@ import buddy.task.Todo;
  * refers to an existing task is checked later, when the command runs.
  */
 public class Parser {
+    private static final DateTimeFormatter DEADLINE_INPUT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
     /**
      * Parses a full line of user input into the command it represents.
@@ -70,8 +75,8 @@ public class Parser {
     }
 
     /**
-     * Parses a deadline from a "deadline &lt;description&gt; /by &lt;when&gt;"
-     * command line.
+     * Parses a deadline from a
+     * "deadline &lt;description&gt; /by &lt;yyyy-mm-dd HHmm&gt;" command line.
      *
      * @param line the full command line
      * @return the new deadline
@@ -86,7 +91,13 @@ public class Parser {
         if (descriptionAndBy.length < 2) {
             throw new BuddyException("Buddy you need to specify the deadline using '/by'.");
         }
-        return new Deadline(descriptionAndBy[0], descriptionAndBy[1]);
+        try {
+            LocalDateTime by = LocalDateTime.parse(descriptionAndBy[1], DEADLINE_INPUT_FORMAT);
+            return new Deadline(descriptionAndBy[0], by);
+        } catch (DateTimeParseException e) {
+            throw new BuddyException("Buddy needs the deadline date in yyyy-mm-dd HHmm format, " +
+                    "e.g. 2019-12-02 1800, not " + descriptionAndBy[1] + ".");
+        }
     }
 
     /**

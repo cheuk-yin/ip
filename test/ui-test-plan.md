@@ -68,18 +68,18 @@ ____________________________________________________________
 
 ## Add a deadline
 
-**Aim:** Adding a deadline task stores it with its due-by text and reports the new task count.
+**Aim:** Adding a deadline task parses its yyyy-mm-dd HHmm due date/time, displays it reformatted, and reports the new task count.
 
 **Input:**
 ```text
-deadline return book /by Sunday
+deadline return book /by 2019-12-02 1800
 ```
 
 **Expected Output:**
 ```text
 ____________________________________________________________
  Got it. I've added this task:
-   [D][ ] return book (by: Sunday)
+   [D][ ] return book (by: Dec 02 2019, 6:00 PM)
  Now you have 2 tasks in the list.
 ____________________________________________________________
 ```
@@ -116,7 +116,7 @@ list
 ____________________________________________________________
  Here are the tasks in your list:
  1.[T][X] read book
- 2.[D][ ] return book (by: Sunday)
+ 2.[D][ ] return book (by: Dec 02 2019, 6:00 PM)
  3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
 ____________________________________________________________
 ```
@@ -166,6 +166,22 @@ deadline return book
 ```text
 ____________________________________________________________
  Buddy you need to specify the deadline using '/by'.
+____________________________________________________________
+```
+
+## Reject a deadline with a badly-formatted date
+
+**Aim:** A `deadline` command whose `/by` date isn't in yyyy-mm-dd HHmm format throws a BuddyException and prints an error instead of adding a task.
+
+**Input:**
+```text
+deadline return book /by Sunday
+```
+
+**Expected Output:**
+```text
+____________________________________________________________
+ Buddy needs the deadline date in yyyy-mm-dd HHmm format, e.g. 2019-12-02 1800, not Sunday.
 ____________________________________________________________
 ```
 
@@ -375,7 +391,7 @@ delete 2
 ```text
 ____________________________________________________________
  Noted. I've removed this task:
-   [D][ ] return book (by: Sunday)
+   [D][ ] return book (by: Dec 02 2019, 6:00 PM)
  Now you have 2 tasks in the list.
 ____________________________________________________________
 ```

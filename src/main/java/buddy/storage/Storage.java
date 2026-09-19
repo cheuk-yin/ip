@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +70,7 @@ public class Storage {
             for (String line : Files.readAllLines(filePath)) {
                 try {
                     tasks.add(parseTask(line));
-                } catch (ArrayIndexOutOfBoundsException | IllegalStateException e) {
+                } catch (ArrayIndexOutOfBoundsException | IllegalStateException | DateTimeParseException e) {
                     System.err.println("Buddy skipped a corrupted saved task: " + line);
                 }
             }
@@ -92,7 +94,7 @@ public class Storage {
 
         Task task = switch (type) {
             case "T" -> new Todo(description);
-            case "D" -> new Deadline(description, fields[3]);
+            case "D" -> new Deadline(description, LocalDateTime.parse(fields[3]));
             case "E" -> new Event(description, fields[3], fields[4]);
             default -> throw new IllegalStateException("Unknown saved task type: " + type);
         };

@@ -1,6 +1,5 @@
 package buddy;
 
-import java.util.ArrayList;
 import java.util.Scanner;
 
 import buddy.exception.BuddyException;
@@ -8,18 +7,19 @@ import buddy.storage.Storage;
 import buddy.task.Deadline;
 import buddy.task.Event;
 import buddy.task.Task;
+import buddy.task.TaskList;
 import buddy.task.Todo;
 
 /**
  * Buddy is a simple command-line chatbot that can store short pieces of
  * text ("tasks") entered by the user and list them back on request.
- * Data is kept in memory only and is lost when the program exits.
+ * Tasks are saved to disk as they change and reloaded on startup.
  */
 public class Buddy {
     private static final String LINE = "____________________________________________________________";
 
-    /** Storage for tasks, in the order they were added. */
-    private static ArrayList<Task> taskStorage = new ArrayList<>();
+    /** The tasks Buddy currently knows about, in the order they were added. */
+    private static TaskList taskList = new TaskList();
 
     /**
      * Prints a message surrounded by horizontal divider lines.
@@ -42,7 +42,7 @@ public class Buddy {
         System.out.println(LINE);
         System.out.println(" Got it. I've added this task:");
         System.out.println("   " + task);
-        System.out.println(" Now you have " + taskStorage.size() + " tasks in the list.");
+        System.out.println(" Now you have " + taskList.size() + " tasks in the list.");
         System.out.println(LINE);
     }
 
@@ -52,8 +52,8 @@ public class Buddy {
     private static void listTasks() {
         System.out.println(LINE);
         System.out.println(" Here are the tasks in your list:");
-        for (int i = 0; i < taskStorage.size(); i++) {
-            Task task = taskStorage.get(i);
+        for (int i = 0; i < taskList.size(); i++) {
+            Task task = taskList.get(i);
             System.out.println(" " + (i + 1) + "." + task);
         }
         System.out.println(LINE);
@@ -68,13 +68,13 @@ public class Buddy {
      * @param isDone true to mark the task done, false to mark it not done
      */
     private static void setTaskStatus(int index, boolean isDone) {
-        Task task = taskStorage.get(index - 1);
+        Task task = taskList.get(index - 1);
         if (isDone) {
             task.markAsDone();
         } else {
             task.markAsNotDone();
         }
-        Storage.save(taskStorage);
+        Storage.save(taskList.asList());
         System.out.println(LINE);
         String confirmation = isDone
                 ? " Nice! I've marked this task as done:"
@@ -101,7 +101,7 @@ public class Buddy {
         }
         try {
             int index = Integer.parseInt(commandParts[1]);
-            if (index < 1 || index > taskStorage.size()) {
+            if (index < 1 || index > taskList.size()) {
                 throw new BuddyException("Buddy task number " + index + " does not exist.");
             }
             return index;
@@ -139,12 +139,12 @@ public class Buddy {
      */
     private static void deleteTask(String line) throws BuddyException {
         int index = parseTaskIndex(line.split(" "), "delete");
-        Task removedTask = taskStorage.remove(index - 1);
-        Storage.save(taskStorage);
+        Task removedTask = taskList.remove(index - 1);
+        Storage.save(taskList.asList());
         System.out.println(LINE);
         System.out.println(" Noted. I've removed this task:");
         System.out.println("   " + removedTask);
-        System.out.println(" Now you have " + taskStorage.size() + " tasks in the list.");
+        System.out.println(" Now you have " + taskList.size() + " tasks in the list.");
         System.out.println(LINE);
     }
 
@@ -225,8 +225,8 @@ public class Buddy {
      * @param task the task to store and confirm
      */
     private static void addAndPrintTask(Task task) {
-        taskStorage.add(task);
-        Storage.save(taskStorage);
+        taskList.add(task);
+        Storage.save(taskList.asList());
         printBoxed(task);
     }
 
@@ -285,7 +285,7 @@ public class Buddy {
      * @param args not used
      */
     public static void main(String[] args) {
-        taskStorage.addAll(Storage.load());
+        taskList = new TaskList(Storage.load());
         printGreeting();
         Scanner scanner = new Scanner(System.in);
         boolean isRunning = true;

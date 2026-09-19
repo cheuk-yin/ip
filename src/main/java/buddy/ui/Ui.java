@@ -1,5 +1,7 @@
 package buddy.ui;
 
+import java.util.List;
+
 import buddy.task.Task;
 import buddy.task.TaskList;
 
@@ -45,11 +47,36 @@ public class Ui {
     public void showTaskList(TaskList taskList) {
         System.out.println(LINE);
         System.out.println(" Here are the tasks in your list:");
-        for (int i = 0; i < taskList.size(); i++) {
-            Task task = taskList.get(i);
-            System.out.println(" " + (i + 1) + "." + task);
+        printNumberedTasks(taskList.asList());
+        System.out.println(LINE);
+    }
+
+    /**
+     * Prints the tasks that matched a search keyword, numbered from 1,
+     * between divider lines.
+     *
+     * @param matches the matching tasks to display
+     */
+    public void showMatchingTasks(List<Task> matches) {
+        System.out.println(LINE);
+        if (matches.isEmpty()) {
+            System.out.println(" Buddy couldnt find any tasks with that keyword.");
+        } else {
+            System.out.println(" Here are the matching tasks in your list:");
+            printNumberedTasks(matches);
         }
         System.out.println(LINE);
+    }
+
+    /**
+     * Prints each task in the given list on its own line, numbered from 1.
+     *
+     * @param tasks the tasks to print
+     */
+    private void printNumberedTasks(List<Task> tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println(" " + (i + 1) + "." + tasks.get(i));
+        }
     }
 
     /**

@@ -9,6 +9,7 @@ import buddy.task.Event;
 import buddy.task.Task;
 import buddy.task.TaskList;
 import buddy.task.Todo;
+import buddy.ui.Ui;
 
 /**
  * Buddy is a simple command-line chatbot that can store short pieces of
@@ -16,48 +17,11 @@ import buddy.task.Todo;
  * Tasks are saved to disk as they change and reloaded on startup.
  */
 public class Buddy {
-    private static final String LINE = "____________________________________________________________";
-
     /** The tasks Buddy currently knows about, in the order they were added. */
     private static TaskList taskList = new TaskList();
 
-    /**
-     * Prints a message surrounded by horizontal divider lines.
-     *
-     * @param message the message to display
-     */
-    private static void printMessage(String message) {
-        System.out.println(LINE);
-        System.out.println(" " + message);
-        System.out.println(LINE);
-    }
-
-    /**
-     * Prints a confirmation that the given task was added, followed by
-     * how many tasks are now stored, surrounded by divider lines.
-     *
-     * @param task the task that was just added
-     */
-    private static void printBoxed(Task task) {
-        System.out.println(LINE);
-        System.out.println(" Got it. I've added this task:");
-        System.out.println("   " + task);
-        System.out.println(" Now you have " + taskList.size() + " tasks in the list.");
-        System.out.println(LINE);
-    }
-
-    /**
-     * Prints all stored tasks, numbered from 1, between divider lines.
-     */
-    private static void listTasks() {
-        System.out.println(LINE);
-        System.out.println(" Here are the tasks in your list:");
-        for (int i = 0; i < taskList.size(); i++) {
-            Task task = taskList.get(i);
-            System.out.println(" " + (i + 1) + "." + task);
-        }
-        System.out.println(LINE);
-    }
+    /** Handles all console output shown to the user. */
+    private static Ui ui = new Ui();
 
     /**
      * Marks the task at the given 1-based index as done or not done, and
@@ -75,13 +39,7 @@ public class Buddy {
             task.markAsNotDone();
         }
         Storage.save(taskList.asList());
-        System.out.println(LINE);
-        String confirmation = isDone
-                ? " Nice! I've marked this task as done:"
-                : " OK, I've marked this task as not done yet:";
-        System.out.println(confirmation);
-        System.out.println("   " + task);
-        System.out.println(LINE);
+        ui.showTaskStatusChanged(task, isDone);
     }
 
     /**
@@ -141,11 +99,7 @@ public class Buddy {
         int index = parseTaskIndex(line.split(" "), "delete");
         Task removedTask = taskList.remove(index - 1);
         Storage.save(taskList.asList());
-        System.out.println(LINE);
-        System.out.println(" Noted. I've removed this task:");
-        System.out.println("   " + removedTask);
-        System.out.println(" Now you have " + taskList.size() + " tasks in the list.");
-        System.out.println(LINE);
+        ui.showTaskDeleted(removedTask, taskList.size());
     }
 
     /**
@@ -227,23 +181,7 @@ public class Buddy {
     private static void addAndPrintTask(Task task) {
         taskList.add(task);
         Storage.save(taskList.asList());
-        printBoxed(task);
-    }
-
-    /**
-     * Prints Buddy's startup banner and greeting.
-     */
-    private static void printGreeting() {
-        String banner = " ____   _   _  ____   ____  __   __\n"
-                + "| __ ) | | | ||  _ \\ |  _ \\ \\ \\ / /\n"
-                + "|  _ \\ | | | || | | || | | | \\ V / \n"
-                + "| |_) || |_| || |_| || |_| |  | |  \n"
-                + "|____/  \\___/ |____/ |____/   |_|  \n";
-        System.out.println(LINE);
-        System.out.println(banner);
-        System.out.println(" Hello! I'm Buddy.");
-        System.out.println(" What can I do for you?");
-        System.out.println(LINE);
+        ui.showTaskAdded(task, taskList.size());
     }
 
     /**
@@ -258,10 +196,10 @@ public class Buddy {
         try {
             switch (commandParts[0]) {
                 case "bye" -> {
-                    printMessage("Bye. Hope to see you again soon!");
+                    ui.showMessage("Bye. Hope to see you again soon!");
                     return false;
                 }
-                case "list" -> listTasks();
+                case "list" -> ui.showTaskList(taskList);
                 case "mark" -> markTask(line);
                 case "unmark" -> unmarkTask(line);
                 case "todo" -> addAndPrintTask(createTodo(line));
@@ -272,7 +210,7 @@ public class Buddy {
             }
 
         } catch (BuddyException e) {
-            printMessage(e.getMessage());
+            ui.showMessage(e.getMessage());
         }
         return true;
     }
@@ -286,7 +224,7 @@ public class Buddy {
      */
     public static void main(String[] args) {
         taskList = new TaskList(Storage.load());
-        printGreeting();
+        ui.showGreeting();
         Scanner scanner = new Scanner(System.in);
         boolean isRunning = true;
         while (isRunning && scanner.hasNextLine()) {

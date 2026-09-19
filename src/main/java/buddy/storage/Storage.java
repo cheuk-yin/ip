@@ -35,6 +35,8 @@ public class Storage {
      * Writes the given tasks to the save file, one per line, overwriting
      * whatever was there before. Creates the containing folder first if
      * it doesn't exist yet, e.g. on someone's first run of the project.
+     * Called after every command that changes the task list, so the save
+     * file always reflects the current in-memory state.
      *
      * @param tasks the current tasks to save
      */

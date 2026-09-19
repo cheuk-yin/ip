@@ -83,6 +83,7 @@ public class TaskList {
 
     /**
      * Returns the tasks whose description contains the given keyword.
+     * The match is case-sensitive.
      *
      * @param keyword the text to search for within each task's description
      * @return the matching tasks, in their original order

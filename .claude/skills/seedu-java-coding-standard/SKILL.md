@@ -68,8 +68,9 @@ code in this project.
 
 ## Statements
 
-- **Package**: every class belongs in a package (see "Known deviations"
-  below for this project's current exception).
+- **Package**: every class belongs in a package. This project uses
+  `buddy` as its root package, with subpackages by role, e.g.
+  `buddy.task`, `buddy.storage`, `buddy.exception`.
 - **Imports**: list explicitly, never wildcard (`import java.util.*;` is
   disallowed). Keep ordering consistent (e.g. static imports, then JDK,
   then third-party, then project packages, each group separated by a
@@ -120,11 +121,3 @@ code in this project.
 - **Comment indentation**: match the indentation of the surrounding code.
   Trailing comments on the same line as code are fine, e.g.
   `process('ABC'); // process a dummy String first`.
-
-## Known deviations (intentional, for this project)
-
-- **Package rule**: this project currently keeps all classes in the
-  default (unnamed) package rather than creating a package. This is a
-  deliberate, temporary exception agreed with the project owner while the
-  codebase is small (see git tags `Level-1`/`Level-2`) — revisit once the
-  project grows enough classes to warrant a package structure.

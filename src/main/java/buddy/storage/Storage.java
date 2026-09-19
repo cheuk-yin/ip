@@ -13,12 +13,21 @@ import buddy.task.Task;
 import buddy.task.Todo;
 
 /**
- * Saves Buddy's task list to a fixed location on disk, so tasks survive
+ * Saves Buddy's task list to a location on disk, so tasks survive
  * between runs. Uses a relative path so the project works the same way
  * regardless of which computer or operating system it runs on.
  */
 public class Storage {
-    private static final Path FILE_PATH = Paths.get("data", "buddy.txt");
+    private final Path filePath;
+
+    /**
+     * Creates a Storage that reads from and writes to the given file.
+     *
+     * @param filePath where to save and load tasks, e.g. "data/buddy.txt"
+     */
+    public Storage(String filePath) {
+        this.filePath = Paths.get(filePath);
+    }
 
     /**
      * Writes the given tasks to the save file, one per line, overwriting
@@ -27,14 +36,14 @@ public class Storage {
      *
      * @param tasks the current tasks to save
      */
-    public static void save(List<Task> tasks) {
+    public void save(List<Task> tasks) {
         StringBuilder fileContent = new StringBuilder();
         for (Task task : tasks) {
             fileContent.append(task.toSaveFormat()).append(System.lineSeparator());
         }
         try {
-            Files.createDirectories(FILE_PATH.getParent());
-            Files.writeString(FILE_PATH, fileContent.toString());
+            Files.createDirectories(filePath.getParent());
+            Files.writeString(filePath, fileContent.toString());
         } catch (IOException e) {
             System.err.println("Buddy could not save your tasks: " + e.getMessage());
         }
@@ -50,13 +59,13 @@ public class Storage {
      *
      * @return the tasks read from the save file, in save order
      */
-    public static List<Task> load() {
+    public List<Task> load() {
         List<Task> tasks = new ArrayList<>();
-        if (Files.notExists(FILE_PATH)) {
+        if (Files.notExists(filePath)) {
             return tasks;
         }
         try {
-            for (String line : Files.readAllLines(FILE_PATH)) {
+            for (String line : Files.readAllLines(filePath)) {
                 try {
                     tasks.add(parseTask(line));
                 } catch (ArrayIndexOutOfBoundsException | IllegalStateException e) {

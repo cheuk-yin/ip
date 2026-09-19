@@ -16,10 +16,25 @@ import buddy.ui.Ui;
  */
 public class Buddy {
     /** The tasks Buddy currently knows about, in the order they were added. */
-    private static TaskList taskList = new TaskList();
+    private TaskList taskList;
 
     /** Handles all console output shown to the user. */
-    private static Ui ui = new Ui();
+    private final Ui ui;
+
+    /** Loads and saves the task list to disk. */
+    private final Storage storage;
+
+    /**
+     * Creates a Buddy that loads its tasks from, and saves its tasks to,
+     * the given file.
+     *
+     * @param filePath where Buddy's tasks are saved between runs
+     */
+    public Buddy(String filePath) {
+        ui = new Ui();
+        storage = new Storage(filePath);
+        taskList = new TaskList(storage.load());
+    }
 
     /**
      * Marks the task at the given 1-based index as done or not done, and
@@ -29,14 +44,14 @@ public class Buddy {
      * @param index the 1-based position of the task in the list
      * @param isDone true to mark the task done, false to mark it not done
      */
-    private static void setTaskStatus(int index, boolean isDone) {
+    private void setTaskStatus(int index, boolean isDone) {
         Task task = taskList.get(index - 1);
         if (isDone) {
             task.markAsDone();
         } else {
             task.markAsNotDone();
         }
-        Storage.save(taskList.asList());
+        storage.save(taskList.asList());
         ui.showTaskStatusChanged(task, isDone);
     }
 
@@ -45,7 +60,7 @@ public class Buddy {
      *
      * @param line the command given by the user
      */
-    private static void markTask(String line) throws BuddyException {
+    private void markTask(String line) throws BuddyException {
         int index = Parser.parseTaskIndex(line.split(" "), "mark", taskList.size());
         setTaskStatus(index, true);
     }
@@ -55,7 +70,7 @@ public class Buddy {
      *
      * @param line the command given by the user
      */
-    private static void unmarkTask(String line) throws BuddyException {
+    private void unmarkTask(String line) throws BuddyException {
         int index = Parser.parseTaskIndex(line.split(" "), "unmark", taskList.size());
         setTaskStatus(index, false);
     }
@@ -66,10 +81,10 @@ public class Buddy {
      *
      * @param line the command given by the user
      */
-    private static void deleteTask(String line) throws BuddyException {
+    private void deleteTask(String line) throws BuddyException {
         int index = Parser.parseTaskIndex(line.split(" "), "delete", taskList.size());
         Task removedTask = taskList.remove(index - 1);
-        Storage.save(taskList.asList());
+        storage.save(taskList.asList());
         ui.showTaskDeleted(removedTask, taskList.size());
     }
 
@@ -78,9 +93,9 @@ public class Buddy {
      *
      * @param task the task to store and confirm
      */
-    private static void addAndPrintTask(Task task) {
+    private void addAndPrintTask(Task task) {
         taskList.add(task);
-        Storage.save(taskList.asList());
+        storage.save(taskList.asList());
         ui.showTaskAdded(task, taskList.size());
     }
 
@@ -91,7 +106,7 @@ public class Buddy {
      * @return true if Buddy should keep running, false if the "bye"
      *     command was given
      */
-    private static boolean handleCommand(String line) {
+    private boolean handleCommand(String line) {
         String[] commandParts = line.split(" ");
         try {
             switch (commandParts[0]) {
@@ -116,14 +131,10 @@ public class Buddy {
     }
 
     /**
-     * Runs Buddy: loads previously saved tasks, prints the greeting
-     * banner, then reads commands from standard input until the user
-     * types "bye".
-     *
-     * @param args not used
+     * Runs Buddy: prints the greeting banner, then reads commands from
+     * standard input until the user types "bye".
      */
-    public static void main(String[] args) {
-        taskList = new TaskList(Storage.load());
+    public void run() {
         ui.showGreeting();
         Scanner scanner = new Scanner(System.in);
         boolean isRunning = true;
@@ -131,5 +142,14 @@ public class Buddy {
             isRunning = handleCommand(scanner.nextLine());
         }
         scanner.close();
+    }
+
+    /**
+     * Starts Buddy, saving and loading tasks from "data/buddy.txt".
+     *
+     * @param args not used
+     */
+    public static void main(String[] args) {
+        new Buddy("data/buddy.txt").run();
     }
 }

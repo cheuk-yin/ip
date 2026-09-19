@@ -13,6 +13,7 @@ public class TaskList {
 
     /** Creates a new, empty task list. */
     public TaskList() {
+
         this.tasks = new ArrayList<>();
     }
 
@@ -23,6 +24,7 @@ public class TaskList {
      * @param tasks the tasks to start with, in order
      */
     public TaskList(List<Task> tasks) {
+
         this.tasks = new ArrayList<>(tasks);
     }
 
@@ -32,6 +34,7 @@ public class TaskList {
      * @param task the task to add
      */
     public void add(Task task) {
+
         tasks.add(task);
     }
 
@@ -42,6 +45,7 @@ public class TaskList {
      * @return the task that was removed
      */
     public Task remove(int index) {
+
         return tasks.remove(index);
     }
 
@@ -52,6 +56,7 @@ public class TaskList {
      * @return the task at that position
      */
     public Task get(int index) {
+
         return tasks.get(index);
     }
 
@@ -61,6 +66,7 @@ public class TaskList {
      * @return the number of tasks
      */
     public int size() {
+
         return tasks.size();
     }
 
@@ -71,6 +77,7 @@ public class TaskList {
      * @return the current tasks, in order
      */
     public List<Task> asList() {
+
         return tasks;
     }
 }

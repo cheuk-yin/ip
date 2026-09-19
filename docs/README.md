@@ -180,3 +180,4 @@ ____________________________________________________________
 | Delete a task | `delete <task number>` | `delete 2` |
 | Find tasks by keyword | `find <keyword>` | `find book` |
 | Exit Buddy | `bye` | `bye` |
+
